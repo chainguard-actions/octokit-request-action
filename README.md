@@ -1,6 +1,12 @@
 # octokit/request-action
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/octokit/request-action](https://github.com/octokit/request-action).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v3.0.0 | [`v3.0.0`](https://github.com/chainguard-actions/request-action/tree/v3.0.0) | — |
 
 ## Privacy
 
