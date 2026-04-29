@@ -1,5 +1,6 @@
 {
   "owner": "octokit",
   "name": "request-action",
-  "visibility": ""
+  "visibility": "internal",
+  "description": "A GitHub Action to send arbitrary requests to GitHub's REST API"
 }
