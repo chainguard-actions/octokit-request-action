@@ -2,5 +2,6 @@
   "owner": "octokit",
   "name": "request-action",
   "visibility": "internal",
-  "description": "A GitHub Action to send arbitrary requests to GitHub's REST API"
+  "description": "A GitHub Action to send arbitrary requests to GitHub's REST API",
+  "block_publish": false
 }
