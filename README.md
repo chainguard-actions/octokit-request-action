@@ -1,6 +1,6 @@
 # octokit/request-action
 
-A GitHub Action to send arbitrary requests to GitHub's REST API
+Send arbitrary requests to GitHub's REST API
 
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/octokit/request-action](https://github.com/octokit/request-action).
 
