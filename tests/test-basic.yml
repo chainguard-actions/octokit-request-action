@@ -1,0 +1,44 @@
+name: Test basic GET request
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          route: GET /repos/octokit/request-action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Assert status is 200
+        env:
+          ACTUAL: ${{ steps.action.outputs.status }}
+        run: |
+          echo "status: $ACTUAL"
+          if [ "$ACTUAL" != "200" ]; then
+            echo "FAIL: expected status 200, got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert data is non-empty
+        env:
+          ACTUAL: ${{ steps.action.outputs.data }}
+        run: |
+          echo "data length: ${#ACTUAL}"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected non-empty data"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert headers is non-empty
+        env:
+          ACTUAL: ${{ steps.action.outputs.headers }}
+        run: |
+          echo "headers: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected non-empty headers"
+            exit 1
+          fi
+          echo "PASS"

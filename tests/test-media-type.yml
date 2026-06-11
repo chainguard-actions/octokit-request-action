@@ -1,0 +1,35 @@
+name: Test GET request with custom mediaType
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          route: GET /repos/octokit/request-action
+          mediaType: '{"format": "json"}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Assert status is 200
+        env:
+          ACTUAL: ${{ steps.action.outputs.status }}
+        run: |
+          echo "status: $ACTUAL"
+          if [ "$ACTUAL" != "200" ]; then
+            echo "FAIL: expected status 200, got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert data contains repo name
+        env:
+          ACTUAL: ${{ steps.action.outputs.data }}
+        run: |
+          echo "data snippet: ${ACTUAL:0:200}"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected non-empty data"
+            exit 1
+          fi
+          echo "PASS"
