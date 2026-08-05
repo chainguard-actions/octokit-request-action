@@ -1,0 +1,53 @@
+name: Test GET /rate_limit
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          route: GET /rate_limit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Assert status is 200
+        env:
+          STATUS: ${{ steps.action.outputs.status }}
+        run: |
+          echo "status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "FAIL: expected status 200, got '$STATUS'"
+            exit 1
+          fi
+          echo "PASS: status is 200"
+      - name: Assert data contains rate limit info
+        env:
+          DATA: ${{ steps.action.outputs.data }}
+        run: |
+          echo "data: $DATA"
+          if [ -z "$DATA" ]; then
+            echo "FAIL: expected non-empty data"
+            exit 1
+          fi
+          # The response should contain rate limit resources
+          if ! echo "$DATA" | grep -q '"rate"'; then
+            echo "FAIL: expected 'rate' key in response data"
+            exit 1
+          fi
+          echo "PASS: data contains rate limit info"
+      - name: Assert headers contain content-type
+        env:
+          HEADERS: ${{ steps.action.outputs.headers }}
+        run: |
+          echo "headers: $HEADERS"
+          if [ -z "$HEADERS" ]; then
+            echo "FAIL: expected non-empty headers"
+            exit 1
+          fi
+          if ! echo "$HEADERS" | grep -qi "content-type"; then
+            echo "FAIL: expected content-type in headers"
+            exit 1
+          fi
+          echo "PASS: headers contain content-type"
