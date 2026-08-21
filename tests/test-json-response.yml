@@ -1,4 +1,4 @@
-name: Test basic usage - public endpoint
+name: Test JSON response from public endpoint
 on:
   workflow_dispatch:
 jobs:
@@ -10,7 +10,7 @@ jobs:
         uses: .
         continue-on-error: true
         with:
-          route: GET /zen
+          route: GET /meta
       - name: Assert action ran and produced expected outputs
         env:
           STATUS: ${{ steps.action.outputs.status }}
@@ -20,7 +20,7 @@ jobs:
         run: |
           echo "outcome: $OUTCOME"
           echo "status: $STATUS"
-          echo "data: $DATA"
+          echo "data (truncated): ${DATA:0:200}"
           echo "headers (truncated): ${HEADERS:0:200}"
           if [ "$OUTCOME" = "success" ]; then
             if [ "$STATUS" != "200" ]; then
@@ -28,14 +28,24 @@ jobs:
               exit 1
             fi
             if [ -z "$DATA" ]; then
-              echo "FAIL: expected non-empty data from /zen"
+              echo "FAIL: expected non-empty data from /meta"
+              exit 1
+            fi
+            # Verify it's parseable JSON with expected fields
+            if ! echo "$DATA" | python3 -c "import sys, json; d=json.load(sys.stdin); assert 'verifiable_password_authentication' in d or 'hooks' in d or 'api' in d" 2>/dev/null; then
+              echo "FAIL: data is not valid JSON or missing expected fields"
               exit 1
             fi
             if [ -z "$HEADERS" ]; then
               echo "FAIL: expected non-empty headers"
               exit 1
             fi
-            echo "PASS: status=$STATUS, data and headers present"
+            # Headers should be a JSON object with lower-cased keys
+            if ! echo "$HEADERS" | python3 -c "import sys, json; d=json.load(sys.stdin); assert 'content-type' in d" 2>/dev/null; then
+              echo "FAIL: headers missing content-type or not valid JSON"
+              exit 1
+            fi
+            echo "PASS: status=$STATUS, valid JSON data and headers with content-type"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (environment limitation)"
           else
